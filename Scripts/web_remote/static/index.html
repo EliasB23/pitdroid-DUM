@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>DUM Pit Droid — Holocrón de Control</title>
+<style>
+  :root {
+    /* Tema REBELDE (default, va con la skin "realista"): oscuro, dorado, sables */
+    --bg: #05060a;
+    --fg: #d6e4f0;
+    --gold: #ffe81f;          /* amarillo logo Star Wars */
+    --saber-blue: #4da6ff;    /* sable Jedi */
+    --saber-red: #ff3b3b;     /* sable Sith / Imperio */
+    --mute: #5e6b7a;
+    --panel: #0c1018;
+    --panel-edge: #1d2a3a;
+  }
+  /* Tema IMPERIAL (va con la skin "imperio"): blanco/acero, rojo imperial, limpio */
+  body.theme-imperial {
+    --bg: #e7e9ed;            /* gris claro tipo acorazado */
+    --fg: #161a20;            /* casi negro */
+    --gold: #b11226;          /* rol "acento" -> rojo imperial */
+    --saber-blue: #324a5e;    /* gris-azulado acero */
+    --saber-red: #b11226;     /* rojo imperial */
+    --mute: #6b7280;
+    --panel: #f7f8fa;         /* paneles blancos */
+    --panel-edge: #c2c7d0;
+  }
+  body.theme-imperial::before { display: none; }   /* sin campo de estrellas en imperio */
+  body.theme-imperial #left-header h1,
+  body.theme-imperial .section-title,
+  body.theme-imperial #state-banner .val.active { text-shadow: none; }
+  body.theme-imperial #left-panel { box-shadow: none; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Bahnschrift", "Eurostile", "Arial Narrow", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    height: 100vh; overflow: hidden;
+    letter-spacing: 0.3px;
+  }
+  /* Campo de estrellas sutil de fondo */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #ffffff55, transparent),
+      radial-gradient(1px 1px at 70% 60%, #ffffff44, transparent),
+      radial-gradient(1px 1px at 40% 80%, #ffffff33, transparent),
+      radial-gradient(1px 1px at 85% 15%, #ffffff44, transparent),
+      radial-gradient(1px 1px at 55% 45%, #ffffff22, transparent),
+      radial-gradient(2px 2px at 10% 70%, #ffe81f33, transparent);
+    background-repeat: repeat;
+  }
+
+  #app {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: row;
+    height: 100vh; width: 100vw;
+  }
+
+  /* --- Panel IZQUIERDO: stream del robot --- */
+  #left-panel {
+    flex: 0 0 50%;
+    background: #000;
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--gold);
+    box-shadow: 2px 0 18px #ffe81f22;
+  }
+  #left-header {
+    padding: 10px 14px; background: var(--panel);
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  #left-header h1 {
+    margin: 0; font-size: 17px; font-weight: 700;
+    color: var(--gold); text-transform: uppercase; letter-spacing: 3px;
+    text-shadow: 0 0 8px #ffe81f88;
+  }
+  #status {
+    font-size: 11px; padding: 3px 10px; border-radius: 2px;
+    background: #000; border: 1px solid var(--panel-edge);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  #status.ok  { color: var(--saber-blue); border-color: var(--saber-blue); text-shadow: 0 0 6px #4da6ff88; }
+  #status.err { color: var(--saber-red);  border-color: var(--saber-red);  text-shadow: 0 0 6px #ff3b3b88; }
+  #stream-wrap { flex: 1; overflow: hidden; position: relative; background: #000; }
+  #robot-view { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #state-banner {
+    padding: 8px 12px; background: var(--panel);
+    text-align: center; font-size: 12px;
+    border-top: 1px solid var(--panel-edge);
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  #state-banner .label { color: var(--mute); margin-right: 8px; }
+  #state-banner .val { font-weight: 700; color: var(--mute); }
+  #state-banner .val.active { color: var(--gold); text-shadow: 0 0 6px #ffe81f88; }
+  /* Boton Reiniciar: arriba del panel derecho, siempre visible */
+  #reset-btn {
+    width: 100%; padding: 10px; font-size: 13px; font-weight: 700;
+    background: #1a0606; color: var(--saber-red); border: 1px solid var(--saber-red);
+    border-radius: 4px; cursor: pointer; touch-action: manipulation;
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  #reset-btn:active { box-shadow: 0 0 12px #ff3b3b99; }
+  #reset-btn:disabled { opacity: 0.4; }
+
+  /* --- Panel DERECHO: acciones, scrollable --- */
+  #right-panel {
+    flex: 1; overflow-y: auto;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  #right-panel::-webkit-scrollbar { width: 5px; }
+  #right-panel::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; opacity: 0.5; }
+
+  .section-title {
+    font-size: 11px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 2px;
+    margin: 6px 2px 0 2px; opacity: 0.85;
+    border-left: 2px solid var(--gold); padding-left: 8px;
+  }
+
+  /* pad MAS CHICO + gutter scrollable a los costados */
+  #pad-wrap {
+    background: var(--panel); border: 1px solid var(--panel-edge);
+    border-radius: 4px; padding: 14px 0;       /* sin padding lateral: el ancho lo da el pad */
+    display: flex; justify-content: center;
+  }
+  #pad {
+    /* Limitado: nunca mas alto que ~40vh, asi en horizontal no tapa la pagina */
+    width: min(80%, 40vh);
+    aspect-ratio: 1 / 1;
+    background: #03040a; border: 1px solid var(--panel-edge);
+    border-radius: 4px; touch-action: none; display: block;
+    box-shadow: inset 0 0 24px #4da6ff22;
+  }
+  /* el #pad-wrap (los costados del pad) tiene touch-action normal -> ahi se scrollea */
+
+  .slider-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel); border: 1px solid var(--panel-edge);
+    padding: 10px 12px; border-radius: 4px;
+  }
+  .slider-row label { min-width: 60px; color: var(--mute); font-size: 11px;
+                      text-transform: uppercase; letter-spacing: 1px; }
+  .slider-row input { flex: 1; accent-color: var(--gold); }
+  .slider-row .val { min-width: 78px; text-align: right;
+                     font-variant-numeric: tabular-nums; font-size: 12px; color: var(--saber-blue); }
+
+  #info-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .info-cell {
+    flex: 1; min-width: 80px;
+    background: var(--panel); border: 1px solid var(--panel-edge);
+    padding: 8px 10px; border-radius: 4px;
+  }
+  .info-cell .label { color: var(--mute); font-size: 10px;
+                      text-transform: uppercase; letter-spacing: 1px; }
+  .info-cell .val { font-size: 18px; font-weight: 700; margin-top: 2px;
+                    font-variant-numeric: tabular-nums; color: var(--saber-blue); }
+  #focus-cell .val.YES { color: var(--gold); text-shadow: 0 0 6px #ffe81f88; }
+  #focus-cell .val.no  { color: var(--mute); }
+
+  /* Botones estilo "panel de mando" */
+  .action-btn {
+    padding: 16px; font-size: 15px; font-weight: 700;
+    border: 1px solid; border-radius: 4px; cursor: pointer;
+    touch-action: manipulation; background: #000;
+    text-transform: uppercase; letter-spacing: 2px;
+    transition: box-shadow .15s, background .15s;
+  }
+  #grab-btn { color: var(--saber-red); border-color: var(--saber-red); }
+  #grab-btn:not(:disabled):active { background: #1a0606; box-shadow: 0 0 16px #ff3b3b99; }
+  #wave-btn { color: var(--saber-blue); border-color: var(--saber-blue); }
+  #wave-btn:not(:disabled):active { background: #06121a; box-shadow: 0 0 16px #4da6ff99; }
+  .action-btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* Maniobras: acciones a la izquierda, D-pad de camara a la derecha */
+  #maniobras-row { display: flex; gap: 8px; }
+  #maniobras-actions { flex: 2; display: flex; flex-direction: column; gap: 8px; }
+  #maniobras-cam { flex: 1.1; display: flex; align-items: center; justify-content: center; }
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px; width: 100%; height: 100%; min-height: 112px;
+  }
+  .dpad-up    { grid-column: 2; grid-row: 1; }
+  .dpad-left  { grid-column: 1; grid-row: 2; }
+  .dpad-right { grid-column: 3; grid-row: 2; }
+  .dpad-down  { grid-column: 2; grid-row: 3; }
+  .dpad-eye {
+    grid-column: 2; grid-row: 2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--gold); opacity: 0.85;
+    text-shadow: 0 0 8px #ffe81f88;
+  }
+  .cam-btn {
+    font-size: 16px; font-weight: 700;
+    background: #000; color: var(--gold); border: 1px solid var(--gold);
+    border-radius: 4px; cursor: pointer; touch-action: manipulation;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cam-btn:active { box-shadow: 0 0 12px #ffe81f88; background: #14110a; }
+
+  /* Botones de apariencia (skin) */
+  #skin-row { display: flex; gap: 8px; }
+  .skin-btn {
+    flex: 1; padding: 12px; font-size: 13px; font-weight: 700;
+    background: #000; color: var(--mute); border: 1px solid var(--panel-edge);
+    border-radius: 4px; cursor: pointer; touch-action: manipulation;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    transition: all .15s;
+  }
+  .skin-btn.skin-active {
+    color: var(--gold); border-color: var(--gold);
+    box-shadow: 0 0 12px #ffe81f55; text-shadow: 0 0 6px #ffe81f88;
+  }
+
+  @media (orientation: portrait) {
+    #app { flex-direction: column; }
+    #left-panel { flex: 0 0 40vh; border-right: none; border-bottom: 1px solid var(--gold); }
+    #right-panel { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- IZQUIERDA: stream fijo -->
+  <div id="left-panel">
+    <div id="left-header">
+      <h1>DUM &middot; Pit Droid</h1>
+      <span id="status" class="err">sin enlace</span>
+    </div>
+    <div id="stream-wrap">
+      <img id="robot-view" src="/stream" alt="vista del robot (MJPEG)">
+    </div>
+    <div id="state-banner">
+      <span class="label">estado</span>
+      <span class="val" id="state-val">IDLE</span>
+    </div>
+  </div>
+
+  <!-- DERECHA: acciones scrollables -->
+  <div id="right-panel">
+
+    <button id="reset-btn" title="Reinicia el robot a estado IDLE sin cortar la conexión">↻ Reiniciar robot</button>
+
+    <div class="section-title">Maniobras</div>
+    <div id="maniobras-row">
+      <div id="maniobras-actions">
+        <button id="grab-btn" class="action-btn">Atrapar esfera</button>
+        <button id="wave-btn" class="action-btn">Saludar</button>
+      </div>
+      <div id="maniobras-cam">
+        <div class="dpad">
+          <button id="cam-up"    class="cam-btn dpad-up">▲</button>
+          <button id="cam-left"  class="cam-btn dpad-left">◀</button>
+          <span class="dpad-eye">&#128065;</span>
+          <button id="cam-right" class="cam-btn dpad-right">▶</button>
+          <button id="cam-down"  class="cam-btn dpad-down">▼</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Objetivo del sensor (esfera roja)</div>
+    <div id="pad-wrap">
+      <canvas id="pad" width="600" height="600"></canvas>
+    </div>
+
+    <div class="slider-row">
+      <label>Distancia</label>
+      <input id="dist-slider" type="range" min="-65" max="95" value="60">
+      <span class="val" id="dist-val">0.60 m frente</span>
+    </div>
+
+    <div class="section-title">Apariencia</div>
+    <div id="skin-row">
+      <button id="skin-realista" class="skin-btn skin-active">Realista</button>
+      <button id="skin-imperio" class="skin-btn">Imperio</button>
+    </div>
+
+    <div class="section-title">Telemetría</div>
+    <div id="info-row">
+      <div class="info-cell">
+        <div class="label">theta</div>
+        <div class="val" id="theta-val">— °</div>
+      </div>
+      <div id="focus-cell" class="info-cell">
+        <div class="label">foco</div>
+        <div class="val no" id="focus-val">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="label">fps</div>
+        <div class="val" id="fps-val">—</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="/static/control.js"></script>
+</body>
+</html>

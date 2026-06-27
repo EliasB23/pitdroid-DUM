@@ -1,0 +1,12 @@
+mujoco
+numpy
+matplotlib
+jupyter
+pandas
+gymnasium
+stable-baselines3[extra]
+tensorboard
+imageio[ffmpeg]
+fastapi
+uvicorn[standard]
+websockets

@@ -1,0 +1,47 @@
+# ============================================================
+#  DUM Pit Droid — .gitignore
+# ============================================================
+
+# --- Entornos virtuales de Python ---
+.venv/
+.venv-*/
+venv/
+env/
+
+# --- Cache / compilados de Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- Config local del IDE / herramientas ---
+.claude/
+.vscode/
+.idea/
+*.lock
+
+# --- Logs de entrenamiento y de runtime (regenerables / ruidosos) ---
+runs_log_*.txt
+runs_v14_smoke.log
+*.out.log
+*.err.log
+cloudflared.*.log
+MUJOCO_LOG.TXT
+MUJOCO_LOG.txt
+
+# --- Capturas de debug sueltas en la raiz ---
+errores*.png
+Figure_1.png
+
+# ============================================================
+#  Artefactos de entrenamiento (runs/)
+#  Se ignora TODO runs/ por peso (~800 MB: checkpoints intermedios,
+#  monitor CSVs, tensorboard). Solo se versionan, via "git add -f",
+#  las policies finales que usa la demo y algunos videos de muestra.
+# ============================================================
+runs/
+
+# Por las dudas, nunca trackear estos pesos aunque caigan fuera de runs/:
+*.csv.monitor.csv
+events.out.tfevents.*

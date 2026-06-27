@@ -1,0 +1,28 @@
+DUM — Robot Animatrónico (Pit Droid)
+Copyright 2026 Elias Bertinat
+
+Este proyecto se licencia bajo la PolyForm Noncommercial License 1.0.0
+(ver el archivo LICENSE). En resumen: libre para usar, estudiar, modificar
+y probar con fines NO comerciales; no se permite el uso comercial ni la venta.
+
+La licencia cubre únicamente el trabajo propio del autor: código, modelado
+CAD, mallas derivadas, escenas de simulación, funciones de reward, policies
+entrenadas y la interfaz web.
+
+------------------------------------------------------------------------
+AVISO SOBRE PROPIEDAD INTELECTUAL DE TERCEROS
+------------------------------------------------------------------------
+
+Proyecto académico NO OFICIAL, sin afiliación ni respaldo de Lucasfilm
+Ltd. ni de The Walt Disney Company.
+
+"Star Wars", "Pit Droid" y las marcas, personajes y diseños relacionados
+son propiedad de Lucasfilm Ltd. / Disney. El robot de este proyecto está
+inspirado en ese diseño con fines educativos.
+
+La licencia PolyForm Noncommercial de este repositorio alcanza solo al
+trabajo del autor; NO otorga ni puede otorgar derecho alguno sobre la
+propiedad intelectual de Star Wars, que sigue perteneciendo a sus titulares.
+El uso del diseño se ampara en el carácter educativo y no comercial del
+proyecto (uso justo / fines académicos). Cualquier uso comercial de este
+material podría infringir los derechos de los titulares de esa IP.
