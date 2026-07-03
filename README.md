@@ -23,6 +23,19 @@ animación con su web de control.
 
 ---
 
+## 🎬 Demos
+
+**Demo completa (1:32)** — head-tracking, atrapar la pelota, saludo procedural, cambio de skin
+y control en vivo desde la interfaz web. *Click en la imagen para verla:*
+
+[![Demo en video de DUM](media/demo_thumb.jpg)](media/demo.mp4)
+
+**Vista explotada del ensamble** ([versión en video](media/explode.mp4)):
+
+![Vista explotada del ensamble CAD](media/explode.gif)
+
+---
+
 ## ¿Qué hace?
 
 DUM combina **policies aprendidas** y **coreografías procedurales** orquestadas por una
