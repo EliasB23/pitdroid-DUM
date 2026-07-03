@@ -2,7 +2,7 @@
 
 **Proyecto Final — Técnico Universitario en Mecatrónica.**
 
-> **🇬🇧 English summary** — DUM is an animatronic Pit Droid (Star Wars-inspired) built end to end
+> **English summary** — DUM is an animatronic Pit Droid (Star Wars-inspired) built end to end
 > in simulation: CAD in Fusion360 → MJCF export → **MuJoCo** physics → **reinforcement-learning**
 > control (**PPO**, Stable-Baselines3) → live web control (FastAPI + WebSockets, from a phone).
 > Learned policies: **360° head-tracking** (the head turns its neck to look *behind* itself) and
@@ -10,7 +10,7 @@
 > Rebel/Empire skin swap). The repo ships the MJCF model, meshes, custom Gymnasium environments,
 > training/eval scripts, the final policies, and a full training log documenting all 16
 > reward-function iterations — failures included ([docs/history.md](docs/history.md)).
-> **▶ Demo video below** (🎬 Demos section).
+> **Demo video below** (Demos section).
 
 DUM es un robot animatrónico inspirado en el **Pit Droid** de *Star Wars*. El proyecto
 recorre el flujo profesional completo de un animatrónico: **idea → CAD → exportación a
@@ -33,7 +33,7 @@ animación con su web de control.
 
 ---
 
-## 🎬 Demos
+## Demos
 
 **Demo completa (1:32)** — head-tracking, atrapar la pelota, saludo procedural, cambio de skin
 y control en vivo desde la interfaz web. *Click en la imagen para verla:*
